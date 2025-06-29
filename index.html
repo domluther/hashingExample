@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashing Algorithms Visualizer - A-Level Computer Science</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .hash-result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .hash-steps {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .collision-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .collision-item {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .database-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .database-table th,
+        .database-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .database-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .database-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .login-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .demo-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .algorithm-info {
+            background: #e3f2fd;
+            border: 2px solid #bbdefb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .hash-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .hash-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .hash-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .mono {
+            font-family: 'Courier New', monospace;
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Hashing Algorithms Visualizer</h1>
+            <p>OCR A-Level Computer Science - Understanding Hash Functions & Security</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('explore')">Explore Algorithms</button>
+            <button class="tab" onclick="showTab('collisions')">Collision Demo</button>
+            <button class="tab" onclick="showTab('accounts')">Account System</button>
+        </div>
+
+        <div class="content">
+            <!-- Explore Algorithms Tab -->
+            <div id="explore" class="section active">
+                <h2>Hash Function Explorer</h2>
+                <p>Try different hashing algorithms and see how they process your input. Notice how even small changes create completely different hashes!</p>
+                
+                <div class="input-group">
+                    <label for="hashInput">Input Text:</label>
+                    <input type="text" id="hashInput" placeholder="Enter text to hash..." value="Hello World">
+                </div>
+
+                <div class="input-group">
+                    <label for="hashAlgorithm">Hashing Algorithm:</label>
+                    <select id="hashAlgorithm">
+                        <option value="length">Length Hash (Very Bad!)</option>
+                        <option value="ascii">ASCII Sum Hash (Bad!)</option>
+                        <option value="simple">Simple Character Hash (Bad!)</option>
+                        <option value="md5">MD5 (Cryptographically Broken)</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="performHashAndDemo()">Generate Hash & Show Change Effect</button>
+
+                <div id="algorithmInfo" class="algorithm-info">
+                    <h4>Length Hash Algorithm</h4>
+                    <p>Simply returns the length of the input string. Extremely vulnerable to collisions!</p>
+                </div>
+
+                <div id="hashSteps" class="hash-steps" style="display: none;">
+                    <h4>Step-by-Step Process:</h4>
+                    <div id="stepsContent"></div>
+                </div>
+
+                <div id="hashOutput" class="hash-result">
+                    <strong>Hash Result:</strong>
+                    <div id="hashValue" class="mono">No hash generated yet</div>
+                </div>
+
+                <div id="changeDemo" style="display: none;">
+                    <h4>Small Change Demonstration:</h4>
+                    <div class="hash-comparison">
+                        <div class="hash-item">
+                            <h4>Original</h4>
+                            <p>Input: <span id="original-input" class="mono"></span></p>
+                            <p>Hash: <span id="original-hash" class="mono"></span></p>
+                        </div>
+                        <div class="hash-item">
+                            <h4>Modified</h4>
+                            <p>Input: <span id="modified-input" class="mono"></span></p>
+                            <p>Hash: <span id="modified-hash" class="mono"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collision Demo Tab -->
+            <div id="collisions" class="section">
+                <h2>Hash Collision Demonstration</h2>
+                <p>See how different inputs can produce the same hash value - a collision! This shows why some algorithms are unsuitable for security.</p>
+
+                <div class="input-group">
+                    <label for="collisionAlgorithm">Algorithm to Test:</label>
+                    <select id="collisionAlgorithm">
+                        <option value="length">Length Hash</option>
+                        <option value="ascii">ASCII Sum Hash</option>
+                        <option value="simple">Simple Character Hash</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="findCollisions()">Find Collisions</button>
+                <button class="btn" onclick="customCollisionTest()">Test Your Own Inputs</button>
+
+                <div id="collisionResults" class="collision-demo" style="display: none;"></div>
+
+                <div id="customCollisionTest" style="display: none;">
+                    <h4>Test for Collisions:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label>First Input:</label>
+                            <input type="text" id="collision1" placeholder="Enter first text...">
+                        </div>
+                        <div>
+                            <label>Second Input:</label>
+                            <input type="text" id="collision2" placeholder="Enter second text...">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="compareHashes()" style="margin-top: 15px;">Compare Hashes</button>
+                    <div id="comparisonResult"></div>
+                </div>
+            </div>
+
+            <!-- Account System Tab -->
+            <div id="accounts" class="section">
+                <h2>Simulated Account System</h2>
+                <p>See how real systems use hashing to store passwords securely. Watch the process of account creation and login verification.</p>
+
+                <div class="login-demo">
+                    <div class="demo-section">
+                        <h3>Create Account</h3>
+                        <div class="input-group">
+                            <label for="newUsername">Username:</label>
+                            <input type="text" id="newUsername" placeholder="Enter username...">
+                        </div>
+                        <div class="input-group">
+                            <label for="newPassword">Password:</label>
+                            <input type="password" id="newPassword" placeholder="Enter password...">
+                        </div>
+                        <div class="input-group">
+                            <label for="accountHashAlgorithm">Hash Algorithm:</label>
+                            <select id="accountHashAlgorithm">
+                                <option value="length">Length Hash (NEVER use!)</option>
+                                <option value="ascii">ASCII Sum Hash (NEVER use!)</option>
+                                <option value="simple">Simple Hash (NEVER use!)</option>
+                                <option value="md5">MD5 (Deprecated)</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="createAccount()">Create Account</button>
+                    </div>
+
+                    <div class="demo-section">
+                        <h3>Login</h3>
+                        <div class="input-group">
+                            <label for="loginUsername">Username:</label>
+                            <input type="text" id="loginUsername" placeholder="Enter username...">
+                        </div>
+                        <div class="input-group">
+                            <label for="loginPassword">Password:</label>
+                            <input type="password" id="loginPassword" placeholder="Enter password...">
+                        </div>
+                        <button class="btn" onclick="attemptLogin()">Login</button>
+                    </div>
+                </div>
+
+                <div id="accountFeedback"></div>
+
+                <div id="databaseView">
+                    <h3>Database Table: users</h3>
+                    <table class="database-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Password Hash</th>
+                                <th>Algorithm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #6c757d; font-style: italic;">No accounts created yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="loginProcess" style="display: none;" class="hash-steps">
+                    <h4>Login Process:</h4>
+                    <div id="loginSteps"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        let users = [];
+        let nextUserId = 1;
+
+        // Hash algorithms
+        const hashAlgorithms = {
+            length: (input) => {
+                return {
+                    hash: input.length.toString(),
+                    steps: [
+                        `Input: "${input}"`,
+                        `Count characters: ${input.length}`,
+                        `Hash result: ${input.length}`
+                    ]
+                };
+            },
+            ascii: (input) => {
+                let sum = 0;
+                let steps = [`Input: "${input}"`];
+                for (let i = 0; i < input.length; i++) {
+                    const ascii = input.charCodeAt(i);
+                    sum += ascii;
+                    steps.push(`Character '${input[i]}' = ASCII ${ascii}, running sum = ${sum}`);
+                }
+                steps.push(`Final hash: ${sum}`);
+                return {
+                    hash: sum.toString(),
+                    steps: steps
+                };
+            },
+            simple: (input) => {
+                let hash = 0;
+                let steps = [`Input: "${input}"`];
+                for (let i = 0; i < input.length; i++) {
+                    const char = input.charCodeAt(i);
+                    hash = ((hash << 5) - hash + char) & 0xffffffff;
+                    steps.push(`Process '${input[i]}' (${char}): hash = ${hash}`);
+                }
+                steps.push(`Final hash: ${Math.abs(hash)}`);
+                return {
+                    hash: Math.abs(hash).toString(),
+                    steps: steps
+                };
+            },
+            md5: (input) => {
+                return {
+                    hash: CryptoJS.MD5(input).toString(),
+                    steps: [
+                        `Input: "${input}"`,
+                        `Apply MD5 algorithm (complex mathematical operations)`,
+                        `Result: 32-character hexadecimal hash`
+                    ]
+                };
+            }
+        };
+
+        const algorithmInfo = {
+            length: {
+                name: "Length Hash Algorithm",
+                description: "Simply returns the length of the input string. Extremely vulnerable to collisions!",
+                security: "NEVER use for security - trivial to create collisions"
+            },
+            ascii: {
+                name: "ASCII Sum Hash Algorithm",
+                description: "Sums up all ASCII values of characters. Still very vulnerable to collisions.",
+                security: "NEVER use for security - easy to create collisions with anagrams"
+            },
+            simple: {
+                name: "Simple Character Hash Algorithm",
+                description: "Basic hash using bit shifting. Better than length/ASCII but still weak.",
+                security: "NEVER use for security - vulnerable to various attacks"
+            },
+            md5: {
+                name: "MD5 Hash Algorithm",
+                description: "Cryptographic hash function, but now considered broken due to collision vulnerabilities.",
+                security: "Deprecated for security use - use SHA-256 or better in real applications"
+            }
+        };
+
+        function showTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section and activate tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateAlgorithmInfo() {
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            const info = algorithmInfo[algorithm];
+            const infoDiv = document.getElementById('algorithmInfo');
+            
+            infoDiv.innerHTML = `
+                <h4>${info.name}</h4>
+                <p>${info.description}</p>
+                <p><strong>Security:</strong> ${info.security}</p>
+            `;
+        }
+
+        function performHashAndDemo() {
+            performHash();
+            demonstrateChange();
+        }
+
+        function performHash() {
+            const input = document.getElementById('hashInput').value;
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            
+            const result = hashAlgorithms[algorithm](input);
+            
+            document.getElementById('hashValue').textContent = result.hash;
+            
+            const stepsDiv = document.getElementById('hashSteps');
+            const stepsContent = document.getElementById('stepsContent');
+            
+            stepsContent.innerHTML = result.steps.map(step => `<p>• ${step}</p>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+
+        function demonstrateChange() {
+            const input = document.getElementById('hashInput').value;
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            
+            // Create a small change (add one character or change one character)
+            const modified = input + 'X';
+            
+            const originalResult = hashAlgorithms[algorithm](input);
+            const modifiedResult = hashAlgorithms[algorithm](modified);
+            
+            document.getElementById('original-input').textContent = input;
+            document.getElementById('original-hash').textContent = originalResult.hash;
+            document.getElementById('modified-input').textContent = modified;
+            document.getElementById('modified-hash').textContent = modifiedResult.hash;
+            
+            document.getElementById('changeDemo').style.display = 'block';
+        }
+
+        function findCollisions() {
+            const algorithm = document.getElementById('collisionAlgorithm').value;
+            const resultsDiv = document.getElementById('collisionResults');
+            
+            let collisions = [];
+            
+            if (algorithm === 'length') {
+                collisions = [
+                    ['Hi', 'By'],
+                    ['Cat', 'Dog'],
+                    ['Hello', 'World'],
+                    ['A', 'B']
+                ];
+            } else if (algorithm === 'ascii') {
+                collisions = [
+                    ['AB', 'BA'],  // Both sum to same ASCII values
+                    ['CAB', 'ABC'],
+                    ['listen', 'silent'],
+                    ['A', '!']  // A=65, !=33, but we can find others
+                ];
+            } else if (algorithm === 'simple') {
+                collisions = [
+                    ['A', '!'],
+                    ['test1', 'test2'],  // May or may not collide, but demonstrates concept
+                ];
+            }
+            
+            resultsDiv.innerHTML = '';
+            collisions.forEach(pair => {
+                const hash1 = hashAlgorithms[algorithm](pair[0]);
+                const hash2 = hashAlgorithms[algorithm](pair[1]);
+                
+                if (hash1.hash === hash2.hash) {
+                    const div = document.createElement('div');
+                    div.className = 'collision-item error';
+                    div.innerHTML = `
+                        <h4>🚨 COLLISION FOUND!</h4>
+                        <p>"${pair[0]}" → Hash: ${hash1.hash}</p>
+                        <p>"${pair[1]}" → Hash: ${hash2.hash}</p>
+                        <p><strong>Different inputs, same hash!</strong></p>
+                    `;
+                    resultsDiv.appendChild(div);
+                }
+            });
+            
+            resultsDiv.style.display = 'grid';
+        }
+
+        function customCollisionTest() {
+            document.getElementById('customCollisionTest').style.display = 'block';
+        }
+
+        function compareHashes() {
+            const input1 = document.getElementById('collision1').value;
+            const input2 = document.getElementById('collision2').value;
+            const algorithm = document.getElementById('collisionAlgorithm').value;
+            
+            if (!input1 || !input2) {
+                alert('Please enter both inputs!');
+                return;
+            }
+            
+            const hash1 = hashAlgorithms[algorithm](input1);
+            const hash2 = hashAlgorithms[algorithm](input2);
+            
+            const resultDiv = document.getElementById('comparisonResult');
+            
+            if (hash1.hash === hash2.hash) {
+                resultDiv.className = 'hash-result error';
+                resultDiv.innerHTML = `
+                    <h4>🚨 COLLISION DETECTED!</h4>
+                    <p>"${input1}" → ${hash1.hash}</p>
+                    <p>"${input2}" → ${hash2.hash}</p>
+                    <p><strong>These different inputs produce the same hash!</strong></p>
+                `;
+            } else {
+                resultDiv.className = 'hash-result success';
+                resultDiv.innerHTML = `
+                    <h4>✅ No Collision</h4>
+                    <p>"${input1}" → ${hash1.hash}</p>
+                    <p>"${input2}" → ${hash2.hash}</p>
+                    <p><strong>Different hashes for different inputs (as expected)</strong></p>
+                `;
+            }
+        }
+
+        function createAccount() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const algorithm = document.getElementById('accountHashAlgorithm').value;
+            
+            if (!username || !password) {
+                showAccountFeedback('Please enter both username and password!', 'error');
+                return;
+            }
+            
+            // Check if username already exists
+            if (users.find(user => user.username === username)) {
+                showAccountFeedback('Username already exists!', 'error');
+                return;
+            }
+            
+            const hashedPassword = hashAlgorithms[algorithm](password);
+            
+            const newUser = {
+                id: nextUserId++,
+                username: username,
+                passwordHash: hashedPassword.hash,
+                algorithm: algorithm
+            };
+            
+            users.push(newUser);
+            updateUserTable();
+            
+            showAccountFeedback(`Account created successfully! Password hashed using ${algorithmInfo[algorithm].name}`, 'success');
+            
+            // Clear form
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+        }
+
+        function attemptLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showAccountFeedback('Please enter both username and password!', 'error');
+                return;
+            }
+            
+            const user = users.find(u => u.username === username);
+            
+            if (!user) {
+                showAccountFeedback('Username not found!', 'error');
+                showLoginProcess([
+                    `Looking for username: "${username}"`,
+                    `❌ Username not found in database`,
+                    `Login failed`
+                ]);
+                return;
+            }
+            
+            const hashedInputPassword = hashAlgorithms[user.algorithm](password);
+            
+            const steps = [
+                `Looking for username: "${username}"`,
+                `✅ Username found in database`,
+                `User's stored hash: ${user.passwordHash}`,
+                `Hashing input password using ${algorithmInfo[user.algorithm].name}`,
+                `Input password hash: ${hashedInputPassword.hash}`,
+                `Comparing hashes...`
+            ];
+            
+            if (hashedInputPassword.hash === user.passwordHash) {
+                steps.push(`✅ Hashes match! Login successful`);
+                showAccountFeedback('Login successful!', 'success');
+            } else {
+                steps.push(`❌ Hashes don't match! Login failed`);
+                showAccountFeedback('Invalid password!', 'error');
+            }
+            
+            showLoginProcess(steps);
+        }
+
+        function showAccountFeedback(message, type) {
+            const feedback = document.getElementById('accountFeedback');
+            feedback.className = `hash-result ${type}`;
+            feedback.innerHTML = `<strong>${message}</strong>`;
+            feedback.style.display = 'block';
+        }
+
+        function showLoginProcess(steps) {
+            const processDiv = document.getElementById('loginProcess');
+            const stepsDiv = document.getElementById('loginSteps');
+            
+            stepsDiv.innerHTML = steps.map(step => `<p>• ${step}</p>`).join('');
+            processDiv.style.display = 'block';
+        }
+
+        function updateUserTable() {
+            const tbody = document.getElementById('userTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #6c757d; font-style: italic;">No accounts created yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td class="mono">${user.passwordHash}</td>
+                    <td>${algorithmInfo[user.algorithm].name}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize
+        document.getElementById('hashAlgorithm').addEventListener('change', updateAlgorithmInfo);
+        updateAlgorithmInfo();
+        performHashAndDemo(); // Show initial example
+    </script>
+</body>
+</html>
